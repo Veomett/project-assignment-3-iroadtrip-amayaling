@@ -1,6 +1,38 @@
-import java.util.List;
+import java.util.*; 
+import java.io.*; 
 
 public class IRoadTrip {
+
+    public static void readFiles() throws Exception{
+
+        HashMap<String, String> hash = new HashMap<>(); 
+        try{
+           // String fileString = "";
+            File borders = new File ("borders.txt"); 
+            Scanner fileScanner = new Scanner(borders); // to read the file 
+           
+            while (fileScanner.hasNextLine()){
+                // need to parse this in order to get the bordering countries 
+                String fileString = fileScanner.nextLine();
+                String [] borderArr = fileString.split(";", 0); // splitting at the ; to get the bordering countries 
+
+                for (int i = 0; i < borderArr.length - 1; i++){
+                    if (i == 0){
+                        hash.put(borderArr[i], borderArr[i+1]);
+                        // that is the first country 
+                        // need to add that to a hashtable 
+
+                    }
+
+               }
+            }
+        }
+        catch (IOException err){
+            err.printStackTrace(); 
+
+        }
+
+    }
 
 
     public IRoadTrip (String [] args) {
@@ -26,10 +58,16 @@ public class IRoadTrip {
     }
 
 
-    public static void main(String[] args) {
-        IRoadTrip a3 = new IRoadTrip(args);
+    public static void main(String[] args) throws Exception {
+        try{
+            readFiles(); 
+        }   
+        catch (IOException e){
+            e.printStackTrace(); 
+        }
+        //IRoadTrip a3 = new IRoadTrip(args);
 
-        a3.acceptUserInput();
+        //a3.acceptUserInput();
     }
 
 }
