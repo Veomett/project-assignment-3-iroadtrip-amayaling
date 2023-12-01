@@ -14,18 +14,29 @@ public class IRoadTrip {
             while (fileScanner.hasNextLine()){
                 // need to parse this in order to get the bordering countries 
                 String fileString = fileScanner.nextLine();
-                String [] borderArr = fileString.split(";", 0); // splitting at the ; to get the bordering countries 
-
-                for (int i = 0; i < borderArr.length - 1; i++){
-                    if (i == 0){
-                        hash.put(borderArr[i], borderArr[i+1]);
-                        // that is the first country 
-                        // need to add that to a hashtable 
-
-                    }
-
+                String [] mainBorder = fileString.split("="); // splitting at the = to get the main countries 
+                String addString = "";
+// have to do the entire length not minus 1 bc it cuts off the last thing 
+                for (int i = 0; i < 1; i++){
+                    // trying to manipulate the strings in order to add to hash map
+                    addString+= mainBorder[i] + ",";
+                    String [] ch = addString.split(",");
+                    System.out.println(ch[i]);
+                    // String borderingCountries = mainBorder[i + 1]; // should get everything after the = 
+                    // System.out.println(borderingCountries.);
+                    // hash.put(mainBorder[i], borderingCountries);
                }
+               //System.out.println(addString);
+
+
+              
+               
             }
+
+            // for (int j = 0; j < hash.size(); j++){
+            //     System.out.println(hash.get(j));
+            // }
+            
         }
         catch (IOException err){
             err.printStackTrace(); 
