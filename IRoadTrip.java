@@ -5,37 +5,26 @@ public class IRoadTrip {
 
     public static void readFiles() throws Exception{
 
-        HashMap<String, String> hash = new HashMap<>(); 
+        HashMap<String, String> bordersHash = new HashMap<String, String>(); // for borders txt
         try{
            // String fileString = "";
             File borders = new File ("borders.txt"); 
             Scanner fileScanner = new Scanner(borders); // to read the file 
-           
-            while (fileScanner.hasNextLine()){
-                // need to parse this in order to get the bordering countries 
-                String fileString = fileScanner.nextLine();
-                String [] mainBorder = fileString.split("="); // splitting at the = to get the main countries 
-                String addString = "";
-// have to do the entire length not minus 1 bc it cuts off the last thing 
-                for (int i = 0; i < 1; i++){
-                    // trying to manipulate the strings in order to add to hash map
-                    addString+= mainBorder[i] + ",";
-                    String [] ch = addString.split(",");
-                    System.out.println(ch[i]);
-                    // String borderingCountries = mainBorder[i + 1]; // should get everything after the = 
-                    // System.out.println(borderingCountries.);
-                    // hash.put(mainBorder[i], borderingCountries);
-               }
-               //System.out.println(addString);
+           // think i found a loophole 
+            int count = 0; 
+            while (fileScanner.hasNext()){
+                String line = fileScanner.nextLine(); // getting the lines from the string
+                String [] splitLine = line.split("="); // getting the countries 
 
+                if (splitLine.length == 2){
+                    String country = splitLine[0].trim();
+                    String borderCountries = splitLine[1].trim(); 
 
-              
-               
+                    bordersHash.put(country, borderCountries);
+                }
             }
+            System.out.println(bordersHash.get("Yemen")); // testing that it works 
 
-            // for (int j = 0; j < hash.size(); j++){
-            //     System.out.println(hash.get(j));
-            // }
             
         }
         catch (IOException err){
