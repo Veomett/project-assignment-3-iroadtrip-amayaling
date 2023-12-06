@@ -67,7 +67,7 @@ public class IRoadTrip {
                             // gets state ID & associated country name
                             // get country name first and then get the acronym
                             // test value against capdist in order to get the distance 
-                            stateName.put(stateLineArr[2], stateLineArr[1]); 
+                            stateName.put(stateLineArr[1], stateLineArr[2]); 
 
                         }
                         
@@ -101,7 +101,7 @@ public class IRoadTrip {
                 return distance;
             }
         }
-        // Replace with your code
+        // if the countries do not share a border, return -1 km
         return -1;
     }
 
@@ -127,10 +127,18 @@ public class IRoadTrip {
         while (again){
             System.out.println("Enter the first country: ");
             String country1 = input.next(); 
-            if (!bordersHash.containsKey(country1)){
-                System.out.println("Invalid input. Pleaese try again: ");
+            if (country1.length() > 3){
+                if (!bordersHash.containsKey(country1)){
+                    System.out.println("Invalid input. Pleaese try again: ");
                 //country1 = input.next(); 
-                continue;
+                    continue;
+                }
+            }else if (country1.length() == 3){
+                // getting state ID 
+                country1 = country1.toUpperCase(); 
+                if (!stateName.containsKey(country1))
+                    country1 = stateName.get(country1); 
+
             }
            
             System.out.println("Enter second country: ");
