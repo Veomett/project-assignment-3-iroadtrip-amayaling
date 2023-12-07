@@ -292,7 +292,7 @@ public class IRoadTrip {
             System.out.print("* " + idToName.get(path.get(i)) + " -> " + idToName.get(path.get((i + 1))));
             System.out.println("(" + distance + " km)");
         }
-        System.out.println(path.get(path.size() - 1));
+        
 }
 
 
