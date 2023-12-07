@@ -29,6 +29,10 @@ public class IRoadTrip {
                         String country = splitLine[0].trim();
                         String borderCountries = splitLine[1].trim(); 
 
+                        String [] bc = borderCountries.split(";");
+
+
+
                         // if (borderCountries == ""){
                         //     borderCountries = null;
                         // }
@@ -94,15 +98,20 @@ public class IRoadTrip {
                             // gets state ID & associated country name
                             // get country name first and then get the acronym
                             // test value against capdist in order to get the distance 
-                            stateName.put(stateLineArr[2], stateLineArr[1]); 
-                            idToName.put(stateLineArr[1], stateLineArr[2]);
 
+                            if (bordersHash.containsKey(stateLineArr[2])){
+                                stateName.put(stateLineArr[2], stateLineArr[1]);
+                                idToName.put(stateLineArr[1], stateLineArr[2]);
 
+                            //stateName.put(stateLineArr[2], stateLineArr[1]); 
+                           // idToName.put(stateLineArr[1], stateLineArr[2]);
+                            }
 
                         }
+
                         
                     }
-                    //System.out.println(stateName);
+                    System.out.println(stateName);
                 }
             }
         }
@@ -116,7 +125,7 @@ public class IRoadTrip {
 
     public int getDistance (String country1, String country2) {
         // use borders txt
-        // the keys are separated by :
+        // the keys are separated by ;
 
         String pathStr = bordersHash.get(country1);
         String acc1 = stateName.get(country1);
@@ -142,57 +151,60 @@ public class IRoadTrip {
     
 
     public List<String> findPath (String country1, String country2) {
-        String c1Acronym = stateName.get(country1);
-        String c2Acronym = stateName.get(country2); 
-
-        // 
-// since my capdist file is stored like this thats how i have to get it 
-        String acronym = c1Acronym + ", " + c2Acronym; // this is how I will get the distance from each country 
-        // need to loop through each border country and see if any match up
-        // if they match, loop through that countries borders and if target is there, stop
-        //else, find shortest path from next country
-
-        // use borders txt
-        // if country 1 and 2 do not border each other, find the countries that overlap in order to do it 
-
-        //System.out.println(capDistHash.get(c));
-
-
+// all of the data structures I think I will need for this 
         PriorityQueue<Node> pq = new PriorityQueue<>(); 
-
-        ArrayList<String> visited = new ArrayList<>(); // gonna store visited countries in here 
-
+        ArrayList<String> visited = new ArrayList<>(); // gonna store visited/known countries in here 
         HashMap<String, Integer> distance = new HashMap<String, Integer>(); 
         HashMap<String, String> prev = new HashMap<String, String>();
 
-        distance.put(country1, 0);
+        String country1 = stateName.get(country1);
 
-        for (String country : bordersHash.keySet()){
+        distance.put(country1, 0);
+        pq.add(new Node(country1, 0)); // priority 
+
+        // giving all of the countries the max value, subject to change 
+        for (String country: bordersHash.keySet()){
             if (!country.equals(country1)){
                 distance.put(country, Integer.MAX_VALUE); 
+               
             }
         }
-
-        pq.add(new Node(country1, 0)); // have to make source 0
 
         while (!pq.isEmpty()){
-            Node current = pq.poll();
-            String currentNode = current.node;
+            Node curr = pq.poll(); // the most important thing in the PQ
+            String currentCountry = curr.node; 
+        
+            if (visited.contains(currentCountry)){
+                continue; 
+            }
+            visited.add(currentCountry); // dont go back to this 
 
-            if (bordersHash.containsKey(currentNode)){
-                String [] neighbors = bordersHash.get(currentNode).split(";");
-                for (int n = 0; n < neighbors.length; n++){
-                    String cc = neighbors[n]; // neighboring countries 
+            String acronymCountry = stateName.get(currentCountry); // if CC = France, returns FRN
 
-                    String ac1 = stateName.get(currentNode); 
-                    String ac2 = stateName.get(cc);
-                    String fullAcc = ac1 + ", " + ac2; 
-                    int d = Integer.parseInt(capDistHash.get(acronym)); 
+            String [] neighboringCountries = bordersHash.get(currentCountry).split(";"); // getting everything connecting 
+
+            for (int i = 0; i < neighboringCountries.length; i++){
+                String neighbors = neighboringCountries[i].trim().replaceAll("\\d",""); // getting the ID, need to remove the km at the end
+                neighbors = neighbors.replaceAll("km", ""); // removed KM 
+
+                String neighbor = stateName.get(neighbors); 
+
+                int kmDistance = graph.get(currentCountry).get(neighbor); 
+                if (!visited.contains(neighbors)){
+                    int newD = distance.get(currentCountry) + kmDistance; 
+
+                    if (newD < distances.get(neighbors)){
+
+                    }
                 }
+
+               
+
             }
 
+        
         }
-
+        
         
         
 
@@ -203,18 +215,18 @@ public class IRoadTrip {
     }
 
     private class Node implements Comparable<Node> {
-            String node;
-            int distance;
+        String node;
+        int distance;
 
-            public Node(String node, int distance) {
-                this.node = node;
-                this.distance = distance;
-            }
-
-            public int compareTo(Node other) {
-            return Integer.compare(this.distance, other.distance);
-            }
+        public Node(String node, int distance) {
+            this.node = node;
+            this.distance = distance;
         }
+
+        public int compareTo(Node other) {
+        return Integer.compare(this.distance, other.distance);
+        }
+    }
 
 
     public void acceptUserInput() {
@@ -279,8 +291,8 @@ public class IRoadTrip {
        // IRoadTrip input = new IRoadTrip(); 
         //input.acceptUserInput(); 
         IRoadTrip a3 = new IRoadTrip(args);
-        a3.acceptUserInput();
-        //a3.findPath("France", "Spain");
+        //a3.acceptUserInput();
+        a3.findPath("France", "Spain");
 
 
         //a3.acceptUserInput();
