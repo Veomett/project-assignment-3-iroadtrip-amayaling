@@ -15,106 +15,108 @@ public class IRoadTrip {
     public IRoadTrip (String [] args) throws Exception{
 
         try{
-            for (int i = 0; i < args.length; i++){
-               if (i == 0){
 
-                    File borders = new File (args[0]); 
-                    Scanner bordersScanner = new Scanner(borders); // to read the file 
-                   // think i found a loophole 
-                    int count = 0; 
-                    while (bordersScanner.hasNext()){
-                        String line = bordersScanner.nextLine(); // getting the lines from the string
-                        String [] splitLine = line.split("="); // getting the countries 
+             File statenames = new File(args[2]);
+                Scanner stateScanner = new Scanner(statenames);
+                while(stateScanner.hasNext()){
+                    String stateLine = stateScanner.nextLine();
+                    String [] stateLineArr = stateLine.split("\t");
+                    // only adding states that exist currently  
+                    if (stateLineArr[4].contains("2020")){
+                        // gets state ID & associated country name
+                        // get country name first and then get the acronym
+                        // test value against capdist in order to get the distance 
 
-                        String country = splitLine[0].trim();
-                        String borderCountries = splitLine[1].trim(); 
-
-                        String [] bc = borderCountries.split(";");
-
-
-
-                        // if (borderCountries == ""){
-                        //     borderCountries = null;
-                        // }
-                        // // if borders nothign do we ignore it? dont know yet (can easily change it)
-                        // if (borderCountries != null){
-                        bordersHash.put(country, borderCountries);
                         
-                        
-                    }   
-                        
-                }
-                else if (i == 1){
-                    File capDist = new File(args[1]); // doing the next file
+                        stateName.put(stateLineArr[2], stateLineArr[1]);
 
-                    Scanner capDistScanner = new Scanner(capDist);
-                    while (capDistScanner.hasNext()){
-                        String cdLine = capDistScanner.nextLine(); // seeing what it looks like first 
-                        String [] cdSplit = cdLine.split(",");
-                        // when i call states, i need to parse the keys to get the proper countries and then test them against state names 
-                        String stateIds = cdSplit[1] + ", " + cdSplit[3]; // getting the countries and their bordering countries into one string so i can have multiple keys with the same name
-                        String distance = cdSplit[4].trim(); // in KM
-                        capDistHash.put(stateIds, distance); 
+                        // have to hard code to get certain values 
+                        if (stateName.containsValue("YEM")){
+                            stateName.put("Yemen", "YEM");
+                        }
+                        else if (stateName.containsValue("ITA")){
+                            stateName.put("Italy", "ITA");
+                        }
+                        else if (stateName.containsValue("USA")){
+                            stateName.put("United States", "USA"); 
+                        }
+                        idToName.put(stateLineArr[1], stateLineArr[2]);
 
-                        // need to ignore this
-                        if (cdLine.contains("kmdist")){
-                            continue;
+                        if (idToName.containsKey("YEM")){
+                            idToName.put("YEM", "Yemen"); 
+                        }
+                        else if (idToName.containsKey("ITA")){
+                            idToName.put("ITA", "Italy"); 
+                        }
+                        else if (idToName.containsKey("USA")){
+                            stateName.put("USA", "United States"); 
                         }
                         
-                        // for large graph array 
-                        String c1 = cdSplit[1]; // country 1
-                        String c2 = cdSplit[3]; // country 3
 
-                        int d = Integer.parseInt(distance.replaceAll("[\\D]", "")); // distance for inner map
-
-                        if (graph.get(c1) == null){
-                            HashMap<String, Integer> g = new HashMap<>();
-                            g.put(c2, d); 
-                            graph.put(c1, g);
-                        }
-                        else{
-                            HashMap<String, Integer> g = graph.get(c1);
-                           // g = graph.get(c1);
-                            g.put(c2, d);
-                        }
-
-                       
-                    } 
-
-                    System.out.println(graph.get("USA").get("CAN"));
+                    }
                     
                 }
-                else{
+                File borders = new File (args[0]); 
+                Scanner bordersScanner = new Scanner(borders); // to read the file 
+               // think i found a loophole 
+                int count = 0; 
+                while (bordersScanner.hasNext()){
+                    String line = bordersScanner.nextLine(); // getting the lines from the string
+                    String [] splitLine = line.split("="); // getting the countries 
 
-                    // works 
-                    // might swap the ids and names 
-                    File statenames = new File(args[2]);
-                    Scanner stateScanner = new Scanner(statenames);
-                    while(stateScanner.hasNext()){
-                        String stateLine = stateScanner.nextLine();
-                        String [] stateLineArr = stateLine.split("\t");
-                        // only adding states that exist currently  
-                        if (stateLineArr[4].contains("2020")){
-                            // gets state ID & associated country name
-                            // get country name first and then get the acronym
-                            // test value against capdist in order to get the distance 
+                    String country = splitLine[0].trim();
 
-                            if (bordersHash.containsKey(stateLineArr[2])){
-                                stateName.put(stateLineArr[2], stateLineArr[1]);
-                                idToName.put(stateLineArr[1], stateLineArr[2]);
+                    String borderCountries = splitLine[1].trim(); 
 
-                            //stateName.put(stateLineArr[2], stateLineArr[1]); 
-                           // idToName.put(stateLineArr[1], stateLineArr[2]);
-                            }
+                    
+                    bordersHash.put(country, borderCountries);
+                    
 
-                        }
+                    
+                } 
+                //System.out.println(bordersHash);
 
-                        
+                File capDist = new File(args[1]); // doing the next file
+
+                Scanner capDistScanner = new Scanner(capDist);
+                while (capDistScanner.hasNext()){
+                    String cdLine = capDistScanner.nextLine(); // seeing what it looks like first 
+                    String [] cdSplit = cdLine.split(",");
+                    // when i call states, i need to parse the keys to get the proper countries and then test them against state names 
+                    String stateIds = cdSplit[1] + ", " + cdSplit[3]; // getting the countries and their bordering countries into one string so i can have multiple keys with the same name
+                    String distance = cdSplit[4].trim(); // in KM
+                    capDistHash.put(stateIds, distance); 
+
+                    // need to ignore this
+                    if (cdLine.contains("kmdist")){
+                        continue;
                     }
-                    System.out.println(stateName);
+                    
+                    // for large graph array 
+                    String c1 = cdSplit[1]; // country 1
+                    String c2 = cdSplit[3]; // country 3
+
+                    int d = Integer.parseInt(distance.replaceAll("[\\D]", "")); // distance for inner map
+
+                    if (graph.get(c1) == null){
+                        HashMap<String, Integer> g = new HashMap<>();
+                        g.put(c2, d); 
+                        graph.put(c1, g);
+                    }
+                    else{
+                        HashMap<String, Integer> g = graph.get(c1);
+                       // g = graph.get(c1);
+                        g.put(c2, d);
+                    }
                 }
+
+                //System.out.println(graph.get("USA"));
+
+
+
+                //System.out.println(stateName);
             }
-        }
+
 
         catch (IOException err){
             err.printStackTrace(); 
@@ -144,6 +146,10 @@ public class IRoadTrip {
                 return distance;
             }
         }
+
+         if (country1.equals(country2)){
+            return 0; 
+         }
         // if the countries do not share a border, return -1
         return -1;
     }
@@ -156,14 +162,17 @@ public class IRoadTrip {
         ArrayList<String> visited = new ArrayList<>(); // gonna store visited/known countries in here 
         HashMap<String, Integer> distance = new HashMap<String, Integer>(); 
         HashMap<String, String> prev = new HashMap<String, String>();
+        // list to use to print the travel path 
+        List<String> path = new ArrayList<>();
 
-        String country1 = stateName.get(country1);
+        country1 = stateName.get(country1); // need the acronym
+        country2 = stateName.get(country2);
 
         distance.put(country1, 0);
         pq.add(new Node(country1, 0)); // priority 
 
         // giving all of the countries the max value, subject to change 
-        for (String country: bordersHash.keySet()){
+        for (String country: graph.keySet()){
             if (!country.equals(country1)){
                 distance.put(country, Integer.MAX_VALUE); 
                
@@ -179,41 +188,41 @@ public class IRoadTrip {
             }
             visited.add(currentCountry); // dont go back to this 
 
-            String acronymCountry = stateName.get(currentCountry); // if CC = France, returns FRN
-
-            String [] neighboringCountries = bordersHash.get(currentCountry).split(";"); // getting everything connecting 
-
-            for (int i = 0; i < neighboringCountries.length; i++){
-                String neighbors = neighboringCountries[i].trim().replaceAll("\\d",""); // getting the ID, need to remove the km at the end
-                neighbors = neighbors.replaceAll("km", ""); // removed KM 
-
-                String neighbor = stateName.get(neighbors); 
-
-                int kmDistance = graph.get(currentCountry).get(neighbor); 
-                if (!visited.contains(neighbors)){
-                    int newD = distance.get(currentCountry) + kmDistance; 
-
-                    if (newD < distances.get(neighbors)){
-
+            if (graph.containsKey(currentCountry)){
+                Map<String, Integer> neighbors = graph.get(currentCountry);
+                //System.out.println(neighbors);
+                // looping over the hash of neighbors to get the new distance 
+                for (String neighbor : neighbors.keySet()) {
+                    if (!visited.contains(neighbor)) {
+                        int newDistance = graph.get(neighbor).get(currentCountry);
+                        
+                        if (newDistance < distance.get(neighbor)) {
+                            distance.put(neighbor, newDistance);
+                            prev.put(neighbor, currentCountry);
+                            pq.add(new Node(neighbor, newDistance));
+                        }
                     }
+
                 }
-
-               
-
             }
 
-        
+
         }
-        
-        
-        
 
+        String current = country2;
+        while (prev.containsKey(current)) {
+            path.add(current);
+            current = prev.get(current);
+        }
+        path.add(country1);
+        // have to reverse the path 
+        Collections.reverse(path);
 
-        // use dijkstras alg 
-        // Replace with your code
-        return null;
+    
+        return path;
     }
 
+   // this is for the algorithm 
     private class Node implements Comparable<Node> {
         String node;
         int distance;
@@ -234,55 +243,57 @@ public class IRoadTrip {
     Scanner input = new Scanner(System.in);
     String quit = "EXIT";
 
+    System.out.println("Enter the name of the first country (type EXIT to quit): ");
+    String country1 = input.next();
+    
+    
     while (again) {
-        System.out.println("Enter the name of the first country (type EXIT to quit): ");
-        String country1 = input.next();
-        
-        if (country1.equalsIgnoreCase(quit)) {
+        if (country1.equals(quit)) {
             System.exit(0);
         }
-
-        if (bordersHash.containsKey(country1)) {
+        if (!bordersHash.containsKey(country1) || !stateName.containsKey(country1)){
+            System.out.println("Invalid input. Try again: ");
+                country1 = input.next(); 
+                //country1 = stateName.get(country1); 
+                again = true; 
+            }
+            
             System.out.println("Enter the name of the second country (type EXIT to quit): ");
             String country2 = input.next();
-
-            if (country2.equalsIgnoreCase(quit)) {
+           
+            if (country2.equals(quit)) {
                 System.exit(0);
             }
 
-            if (bordersHash.containsKey(country2)) {
+            if (!bordersHash.containsKey(country2) || !stateName.containsKey(country2)){
+                System.out.println("Invalid input. Try again");
+                country2 = input.next(); 
+                
+                
+            } else {
                 System.out.println(country1 + " --> " + country2 + " (" + getDistance(country1, country2) + " km)");
                 again = false;
-            } else {
-                System.out.println("Invalid. Please try again: ");
             } 
-        }
-        else {
-            System.out.println("Invalid. Please try again: ");
-            }
+        }   
 
-        
-    }        
-
-        // System.out.println(country1 + " --> " + country2 + " (" + getDistance(country1, country2) + " km)");
-        // //path = findPath(country1, country2); // will print this accordingly 
-        // again = false;
-           /*
-
-        //    check for validity 
-        //    if country 1 equals the values or keys of any of the hash maps, 
-        //    should check to make sure it greater than 3 in length 
-        //    if len == 3, check with the state names 
-        //    else check in borders 
-
-        //    if its valid, get country 2 and check
-        //    if its not vlaid, ask again 
-        //    do this for both 
-        //    */
-
-        // }
        
     }
+
+    public void printPath(List<String> path) {
+        if (path.isEmpty()) {
+            System.out.println("No path found.");
+            return;
+        }
+        
+
+        System.out.println("Route from " + idToName.get(path.get(0)) + " to " + idToName.get(path.get(path.size() -1)) + ": ");
+        for (int i = 0; i < path.size() - 1; i++) {
+            int distance = graph.get(path.get(i)).get(path.get(i + 1));
+            System.out.print("* " + idToName.get(path.get(i)) + " -> " + idToName.get(path.get((i + 1))));
+            System.out.println("(" + distance + " km)");
+        }
+        System.out.println(path.get(path.size() - 1));
+}
 
 
     public static void main(String[] args) throws Exception {
@@ -291,8 +302,12 @@ public class IRoadTrip {
        // IRoadTrip input = new IRoadTrip(); 
         //input.acceptUserInput(); 
         IRoadTrip a3 = new IRoadTrip(args);
-        //a3.acceptUserInput();
-        a3.findPath("France", "Spain");
+        a3.acceptUserInput();
+
+        // to print the path 
+        List<String> path = a3.findPath("Yemen", "Jordan");
+        a3.printPath(path);
+        
 
 
         //a3.acceptUserInput();
