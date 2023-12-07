@@ -4,8 +4,13 @@ import java.io.*;
 public class IRoadTrip {
     // need to be able to access every hashmap 
     public HashMap<String, String> bordersHash = new HashMap<String, String>(); // for borders txt
+    
     public HashMap<String, String> capDistHash = new HashMap<String, String>(); // for capdist 
+
     public HashMap<String, String> stateName = new HashMap<String, String>(); // for statename tsv 
+
+
+    public HashMap<String, String> graph = new HashMap<String, String>(); // getting all of the hashes 
 
     public IRoadTrip (String [] args) throws Exception{
         // public HashMap<String, String> bordersHash = new HashMap<String, String>(); // for borders txt
@@ -27,14 +32,15 @@ public class IRoadTrip {
                         String country = splitLine[0].trim();
                         String borderCountries = splitLine[1].trim(); 
 
-                        if (borderCountries == ""){
-                            borderCountries = null;
-                        }
-                        // if borders nothign do we ignore it? dont know yet (can easily change it)
-                        if (borderCountries != null){
-                            bordersHash.put(country, borderCountries);
-                        }
-                    }     
+                        // if (borderCountries == ""){
+                        //     borderCountries = null;
+                        // }
+                        // // if borders nothign do we ignore it? dont know yet (can easily change it)
+                        // if (borderCountries != null){
+                        bordersHash.put(country, borderCountries);
+                        
+                        
+                    }   
                         
                 }
                 else if (i == 1){
@@ -49,8 +55,6 @@ public class IRoadTrip {
                         String distance = cdSplit[4].trim(); // in KM
                         capDistHash.put(stateIds, distance); 
                     } 
-                    // String cc = "USA, CAN";
-                    // System.out.println(capDistHash.get(cc)); 
                     
                 }
                 else{
@@ -67,11 +71,13 @@ public class IRoadTrip {
                             // gets state ID & associated country name
                             // get country name first and then get the acronym
                             // test value against capdist in order to get the distance 
-                            stateName.put(stateLineArr[1], stateLineArr[2]); 
+                            stateName.put(stateLineArr[2], stateLineArr[1]); 
+
 
                         }
                         
                     }
+                    //System.out.println(stateName);
                 }
             }
         }
@@ -88,25 +94,44 @@ public class IRoadTrip {
         // the keys are separated by :
 
         String pathStr = bordersHash.get(country1);
+        String acc1 = stateName.get(country1);
         String [] pathArr = pathStr.split(";");
-        System.out.println("arr size: " + pathArr.length);
 
 
         for (int i = 0; i < pathArr.length; i++){
             if (pathArr[i].contains(country2)){
-                //System.out.println(pathArr[i].trim());
-                String dist = pathArr[i].trim();
+                // gets alias name
+                String acc2 = stateName.get(country2); 
+                String acronymCountry = acc1 + ", " + acc2;
+                
+                String dist = capDistHash.get(acronymCountry);
                 // parsing the string to get the km distance 
-                int distance = Integer.parseInt(dist.replaceAll("[\\D]", ""));
+                int distance = Integer.parseInt(dist);
                 return distance;
             }
         }
-        // if the countries do not share a border, return -1 km
+        // if the countries do not share a border, return -1
         return -1;
     }
 
 
     public List<String> findPath (String country1, String country2) {
+        String c1Acronym = stateName.get(country1);
+        String c2Acronym = stateName.get(country2); 
+
+        // 
+// since my capdist file is stored like this thats how i have to get it 
+        String acronym = c1Acronym + ", " + c2Acronym; 
+
+        // use borders txt
+        // if country 1 and 2 do not border each other, find the countries that overlap in order to do it 
+
+        //System.out.println(capDistHash.get(c));
+
+
+        PriorityQueue<String> pq = new PriorityQueue<>(); 
+        
+
 
         // use dijkstras alg 
         // Replace with your code
@@ -127,18 +152,10 @@ public class IRoadTrip {
         while (again){
             System.out.println("Enter the first country: ");
             String country1 = input.next(); 
-            if (country1.length() > 3){
-                if (!bordersHash.containsKey(country1)){
-                    System.out.println("Invalid input. Pleaese try again: ");
+            if (!bordersHash.containsKey(country1)){
+                System.out.println("Invalid input. Pleaese try again: ");
                 //country1 = input.next(); 
-                    continue;
-                }
-            }else if (country1.length() == 3){
-                // getting state ID 
-                country1 = country1.toUpperCase(); 
-                if (!stateName.containsKey(country1))
-                    country1 = stateName.get(country1); 
-
+                continue;
             }
            
             System.out.println("Enter second country: ");
@@ -150,7 +167,8 @@ public class IRoadTrip {
                 continue;
             }
             else{
-                System.out.println(country1 + " -> " + country2 + " = " + getDistance(country1, country2) + " km");
+                System.out.println(country1 + " --> " + country2 + " (" + getDistance(country1, country2) + " km)");
+                //path = findPath(country1, country2); // will print this accordingly 
                 again = false;
             }
             
@@ -180,6 +198,7 @@ public class IRoadTrip {
         //input.acceptUserInput(); 
         IRoadTrip a3 = new IRoadTrip(args);
         a3.acceptUserInput();
+        //a3.findPath("France", "Spain");
 
 
         //a3.acceptUserInput();
